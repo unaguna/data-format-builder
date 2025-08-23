@@ -57,7 +57,7 @@ public class DataFormat {
      */
     public static DataFormat fromPrintfFormat(final String fmt) {
         Objects.requireNonNull(fmt);
-        Builder builder = new Builder();
+        final Builder builder = new Builder();
         int head = 0;
         boolean percent = false;
         while (head < fmt.length()) {
