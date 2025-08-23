@@ -26,6 +26,42 @@ public class DataFormatTest {
         assertEquals("test", actual);
     }
 
+    @Test
+    public void testVar() {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .constant("value=")
+                .string("key")
+                .build();
+
+        final String actual = dataFormat.format(key -> {
+            if ("key".equals(key)) {
+                return "test";
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        });
+        assertEquals("value=test", actual);
+    }
+
+    @Test
+    public void testVar__StringBuilder() {
+        final StringBuilder stringBuilder = new StringBuilder();
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .constant("value=")
+                .string("key")
+                .build();
+
+        final String actual = dataFormat.format(key -> {
+            if ("key".equals(key)) {
+                return "test";
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }, stringBuilder)
+                .toString();
+        assertEquals("value=test", actual);
+    }
+
     static class DummyProvider implements ValueProvider {
         @Override
         public String get(String key) {

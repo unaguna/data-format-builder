@@ -51,5 +51,10 @@ public class DataFormat {
             formatParts.add(new DataFormatPartConstant(value));
             return this;
         }
+
+        public Builder string(final String key) {
+            formatParts.add(new DataFormatPartString(key));
+            return this;
+        }
     }
 }
