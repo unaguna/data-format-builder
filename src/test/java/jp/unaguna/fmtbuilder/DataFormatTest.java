@@ -15,6 +15,17 @@ public class DataFormatTest {
     }
 
     @Test
+    public void testConst2() {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .constant("test")
+                .constant("TEST")
+                .build();
+
+        final String actual = dataFormat.format(new DummyProvider());
+        assertEquals("testTEST", actual);
+    }
+
+    @Test
     public void testConst__StringBuilder() {
         final StringBuilder stringBuilder = new StringBuilder();
         final DataFormat dataFormat = new DataFormat.Builder()
