@@ -55,8 +55,8 @@ public class DataFormat {
      * <p>
      * The created DateFormat treats the first two characters starting with % as placeholders,
      * and when formatting, it retrieves the value using the placeholder string as the key and embeds it.
-     * For example, if you specify ‘%abc’ as the format, the value of %a is retrieved during formatting.
-     * If this value is ‘ABC’, the result will be ‘ABCbc’. However, '%%' is an exception and '%' is embedded.
+     * For example, if you specify '%abc' as the format, the value of %a is retrieved during formatting.
+     * If this value is 'ABC', the result will be 'ABCbc'. However, '%%' is an exception and '%' is embedded.
      * </p>
      *
      * @param fmt printf format
