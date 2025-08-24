@@ -38,7 +38,11 @@ class ValueProviderMapImpl implements ValueProviderMap {
 
     @Override
     public Object get(String key) {
-        return impl.get(key);
+        if (this.containsKey(key)) {
+            return impl.get(key);
+        } else {
+            throw new IllegalArgumentException("the map doesn't contain the specified key '" + key + "'");
+        }
     }
 
     @Override
