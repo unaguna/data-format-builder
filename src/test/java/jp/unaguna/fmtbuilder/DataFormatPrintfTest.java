@@ -2,7 +2,10 @@ package jp.unaguna.fmtbuilder;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.IllegalFormatException;
+import java.util.UnknownFormatConversionException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DataFormatPrintfTest {
     @Test
@@ -61,5 +64,14 @@ public class DataFormatPrintfTest {
             }
         });
         assertEquals("\uD842\uDFB7あ", actual);
+    }
+
+    @Test
+    public void testPrintfBuild__error_by_suffix_single_percent() {
+        final UnknownFormatConversionException actualExc =
+                assertThrowsExactly(UnknownFormatConversionException.class,
+                        () -> DataFormat.fromPrintfFormat("abc %s_def%"));
+        assertInstanceOf(IllegalFormatException.class, actualExc);
+        assertEquals("%", actualExc.getConversion());
     }
 }

@@ -3,6 +3,7 @@ package jp.unaguna.fmtbuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UnknownFormatConversionException;
 
 /**
  * DataFormat is a formatter for data consisting of field values.
@@ -86,6 +87,11 @@ public class DataFormat {
 
             }
             head = fmt.offsetByCodePoints(head, 1);
+        }
+
+        // If single % is on the end, it is illegal format.
+        if (percent) {
+            throw new UnknownFormatConversionException("%");
         }
         return builder.build();
     }
