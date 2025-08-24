@@ -1,5 +1,6 @@
 package jp.unaguna.fmtbuilder;
 
+import java.util.MissingFormatArgumentException;
 import java.util.Objects;
 
 class DataFormatPartString implements DataFormatPart {
@@ -11,6 +12,12 @@ class DataFormatPartString implements DataFormatPart {
 
     @Override
     public void format(final StringBuilder stringBuilder, final ValueProvider valueProvider) {
-        stringBuilder.append(valueProvider.get(key));
+        final Object value;
+        try {
+            value = valueProvider.get(key);
+        } catch (IllegalArgumentException e) {
+            throw new MissingFormatArgumentException(key);
+        }
+        stringBuilder.append(value);
     }
 }

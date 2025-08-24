@@ -1,9 +1,11 @@
 package jp.unaguna.fmtbuilder;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
-
 import org.junit.jupiter.api.Test;
+
+import java.util.MissingFormatArgumentException;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class DataFormatTest {
     @Test
@@ -84,6 +86,8 @@ public class DataFormatTest {
 
         final DataFormattingException actualExc =
                 assertThrowsExactly(DataFormattingException.class, () -> dataFormat.format(new DummyProvider()));
+        assertInstanceOf(IllegalArgumentException.class, actualExc.getCause());
+        assertInstanceOf(MissingFormatArgumentException.class, actualExc.getCause());
         assertEquals("some error occurred during formatting data", actualExc.getMessage());
     }
 
@@ -98,13 +102,15 @@ public class DataFormatTest {
         final DataFormattingException actualExc = assertThrowsExactly(
                         DataFormattingException.class,
                         () -> dataFormat.format(new DummyProvider(), stringBuilder));
+        assertInstanceOf(IllegalArgumentException.class, actualExc.getCause());
+        assertInstanceOf(MissingFormatArgumentException.class, actualExc.getCause());
         assertEquals("some error occurred during formatting data", actualExc.getMessage());
     }
 
     static class DummyProvider implements ValueProvider {
         @Override
         public String get(String key) {
-            throw new UnsupportedOperationException();
+            throw new IllegalArgumentException();
         }
     }
 }

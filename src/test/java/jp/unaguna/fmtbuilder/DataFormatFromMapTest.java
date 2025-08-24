@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingFormatArgumentException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,6 +39,7 @@ public class DataFormatFromMapTest {
                 DataFormattingException.class,
                 () -> dataFormat.format(valueProvider));
         assertInstanceOf(IllegalArgumentException.class, actualExc.getCause());
+        assertInstanceOf(MissingFormatArgumentException.class, actualExc.getCause());
         assertEquals("some error occurred during formatting data", actualExc.getMessage());
     }
 }
