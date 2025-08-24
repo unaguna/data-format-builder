@@ -82,7 +82,9 @@ public class DataFormatTest {
                 .string("key")
                 .build();
 
-        assertThrowsExactly(DataFormattingException.class, () -> dataFormat.format(new DummyProvider()));
+        final DataFormattingException actualExc =
+                assertThrowsExactly(DataFormattingException.class, () -> dataFormat.format(new DummyProvider()));
+        assertEquals("some error occurred during formatting data", actualExc.getMessage());
     }
 
     @Test
@@ -93,7 +95,10 @@ public class DataFormatTest {
                 .string("key")
                 .build();
 
-        assertThrowsExactly(DataFormattingException.class, () -> dataFormat.format(new DummyProvider(), stringBuilder));
+        final DataFormattingException actualExc = assertThrowsExactly(
+                        DataFormattingException.class,
+                        () -> dataFormat.format(new DummyProvider(), stringBuilder));
+        assertEquals("some error occurred during formatting data", actualExc.getMessage());
     }
 
     static class DummyProvider implements ValueProvider {
