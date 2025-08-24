@@ -1,6 +1,8 @@
 package jp.unaguna.fmtbuilder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+
 import org.junit.jupiter.api.Test;
 
 public class DataFormatTest {
@@ -71,6 +73,27 @@ public class DataFormatTest {
         }, stringBuilder)
                 .toString();
         assertEquals("value=test", actual);
+    }
+
+    @Test
+    public void testVar__error() {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .constant("value=")
+                .string("key")
+                .build();
+
+        assertThrowsExactly(DataFormattingException.class, () -> dataFormat.format(new DummyProvider()));
+    }
+
+    @Test
+    public void testVar__StringBuilder__error() {
+        final StringBuilder stringBuilder = new StringBuilder();
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .constant("value=")
+                .string("key")
+                .build();
+
+        assertThrowsExactly(DataFormattingException.class, () -> dataFormat.format(new DummyProvider(), stringBuilder));
     }
 
     static class DummyProvider implements ValueProvider {

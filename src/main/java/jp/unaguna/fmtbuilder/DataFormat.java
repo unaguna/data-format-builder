@@ -21,6 +21,7 @@ public class DataFormat {
      *
      * @param valueProvider the data to format
      * @return the formatted String
+     * @throws DataFormattingException if some error occurred during formatting
      */
     public String format(final ValueProvider valueProvider) {
         final StringBuilder stringBuilder = new StringBuilder();
@@ -34,10 +35,15 @@ public class DataFormat {
      * @param valueProvider the data to format
      * @param toAppendTo the string buffer to which the formatted text is to be appended
      * @return the value passed in as toAppendTo
+     * @throws DataFormattingException if some error occurred during formatting
      */
     public StringBuilder format(final ValueProvider valueProvider, final StringBuilder toAppendTo) {
-        for (final DataFormatPart formatPart : formatParts) {
-            formatPart.format(toAppendTo, valueProvider);
+        try {
+            for (final DataFormatPart formatPart : formatParts) {
+                formatPart.format(toAppendTo, valueProvider);
+            }
+        } catch (final Exception e) {
+            throw new DataFormattingException("some error occurred during formatting data", e);
         }
         return toAppendTo;
     }
