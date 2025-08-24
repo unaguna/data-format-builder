@@ -1,9 +1,22 @@
 plugins {
     id 'java'
+    id 'maven-publish'
+    id 'signing'
+    id 'cl.franciscosolis.sonatype-central-upload' version '1.0.3'
 }
 
 group = 'jp.unaguna'
-version = '1.0-SNAPSHOT'
+version = '0.1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withJavadocJar()
+    withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -16,4 +29,55 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication)  {
+            pom {
+                name = project.name
+                description = 'A builder of custom formatting.'
+                url = 'https://github.com/unaguna/data-format-builder'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/unaguna/data-format-builder/blob/main/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'unaguna'
+                        name = 'K-izumi'
+                        email = 'k.izumi.ysk@gmail.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/unaguna/data-format-builder'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("publishMavenJavaPublicationToMavenRepository") }
+    sign publishing.publications.mavenJava
+}
+
+sonatypeCentralUpload {
+    dependsOn("jar", "sourcesJar", "javadocJar", "generatePomFileForMavenJavaPublication")
+
+    username = System.getenv("SONATYPE_CENTRAL_USERNAME")
+    password = System.getenv("SONATYPE_CENTRAL_PASSWORD")
+
+    archives = files(
+            tasks.named("jar"),
+            tasks.named("sourcesJar"),
+            tasks.named("javadocJar"),
+    )
+    pom = file(
+            tasks.named("generatePomFileForMavenJavaPublication").get().outputs.files.singleFile
+    )
+    signingKey = System.getenv("PGP_SIGNING_KEY")
+    signingKeyPassphrase = System.getenv("PGP_SIGNING_KEY_PASSPHRASE")
 }
