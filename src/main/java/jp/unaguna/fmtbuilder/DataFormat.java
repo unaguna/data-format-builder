@@ -85,9 +85,10 @@ public class DataFormat {
     }
 
     public static class Builder {
-        private final List<DataFormatPart> formatParts = new ArrayList<>();
+        private List<DataFormatPart> formatParts = new ArrayList<>();
 
         public DataFormat build() {
+            compressConstants();
             return new DataFormat(formatParts);
         }
 
@@ -99,6 +100,34 @@ public class DataFormat {
         public Builder string(final String key) {
             formatParts.add(new DataFormatPartString(key));
             return this;
+        }
+
+        /**
+         * Compress consecutive {@link this.constant(String)}s into one.
+         */
+        private void compressConstants() {
+            final List<DataFormatPart> newParts = new ArrayList<>();
+            StringBuilder currentConst = null;
+            for (final DataFormatPart part : this.formatParts) {
+                if (part instanceof DataFormatPartConstant) {
+                    if (currentConst == null) {
+                        currentConst = new StringBuilder();
+                    }
+                    currentConst.append(((DataFormatPartConstant) part).getConstValue());
+                } else {
+                    if (currentConst != null) {
+                        newParts.add(new DataFormatPartConstant(currentConst.toString()));
+                        currentConst = null;
+                    }
+                    newParts.add(part);
+                }
+            }
+
+            if (currentConst != null) {
+                newParts.add(new DataFormatPartConstant(currentConst.toString()));
+            }
+
+            this.formatParts = newParts;
         }
     }
 }

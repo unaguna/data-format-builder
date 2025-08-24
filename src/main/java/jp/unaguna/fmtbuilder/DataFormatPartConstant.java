@@ -13,4 +13,8 @@ class DataFormatPartConstant implements DataFormatPart {
     public void format(final StringBuilder stringBuilder, final ValueProvider valueProvider) {
         stringBuilder.append(value);
     }
+
+    public String getConstValue() {
+        return this.value;
+    }
 }
