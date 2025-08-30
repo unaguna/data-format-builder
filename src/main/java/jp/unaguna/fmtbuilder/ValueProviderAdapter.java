@@ -22,10 +22,10 @@ import java.util.function.Function;
  *
  * <p>
  * An adapter instance functions as a ValueProvider that extracts the necessary values from the data
- * by holding the data to be formatted using {@link ValueProviderAdapter<T>.setElement(T)}.
+ * by holding the data to be formatted using {@link #setElement(Object) }.
  * Since this instance is intended to be reused,
  * if you want to use the adapter for other data,
- * execute {@link ValueProviderAdapter<T>.setElement(T)} again to change the data the adapter holds and then use it.
+ * execute {@link #setElement(Object)} again to change the data the adapter holds and then use it.
  * </p>
  *
  * @param <T> type of inner instance
