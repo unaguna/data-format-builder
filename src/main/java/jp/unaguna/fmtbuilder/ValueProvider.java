@@ -2,6 +2,9 @@ package jp.unaguna.fmtbuilder;
 
 import java.util.Map;
 
+/**
+ * This provides values for formatting by {@link DataFormat}.
+ */
 public interface ValueProvider {
     /**
      * Returns the value of the specified key.
