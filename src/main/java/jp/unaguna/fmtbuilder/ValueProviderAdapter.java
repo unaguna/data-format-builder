@@ -34,16 +34,16 @@ public class ValueProviderAdapter<T> implements ValueProvider {
     private final Map<String, Function<T, Object>> providers;
     private T element = null;
 
-    public void setElement(T element) {
+    public void setElement(final T element) {
         this.element = element;
     }
 
-    private ValueProviderAdapter(Map<String, Function<T, Object>> providers) {
+    private ValueProviderAdapter(final Map<String, Function<T, Object>> providers) {
         this.providers = providers;
     }
 
     @Override
-    public Object get(String key) {
+    public Object get(final String key) {
         final T element = this.element;
         if (element == null) {
             throw new IllegalStateException("This adapter contains no element.");
@@ -60,7 +60,7 @@ public class ValueProviderAdapter<T> implements ValueProvider {
     public static class Builder<T> {
         private final Map<String, Function<T, Object>> providers = new HashMap<>();
 
-        public Builder<T> addProvider(String key, Function<T, Object> provider) {
+        public Builder<T> addProvider(final String key, final Function<T, Object> provider) {
             Objects.requireNonNull(key);
             Objects.requireNonNull(provider);
 
