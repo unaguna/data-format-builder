@@ -107,6 +107,28 @@ public class DataFormatTest {
         assertEquals("some error occurred during formatting data", actualExc.getMessage());
     }
 
+    @Test
+    public void testVariableNames() {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .constant("value=")
+                .string("key")
+                .build();
+
+        assertArrayEquals(new String[]{"key"}, dataFormat.getVariableNames().toArray(new String[0]));
+    }
+
+    @Test
+    public void testVariableNames2() {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .constant("value=")
+                .string("key1")
+                .constant(",")
+                .string("key2")
+                .build();
+
+        assertArrayEquals(new String[]{"key1", "key2"}, dataFormat.getVariableNames().toArray(new String[0]));
+    }
+
     static class DummyProvider implements ValueProvider {
         @Override
         public String get(String key) {

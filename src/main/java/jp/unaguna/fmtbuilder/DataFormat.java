@@ -1,9 +1,6 @@
 package jp.unaguna.fmtbuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 
 /**
  * DataFormat is a formatter for data consisting of field values.
@@ -12,9 +9,19 @@ import java.util.UnknownFormatConversionException;
 public class DataFormat {
     private static final int CODE_POINT_PERCENT = '%';
     private final List<DataFormatPart> formatParts;
+    private final List<String> variables;
 
     private DataFormat(final List<DataFormatPart> formatParts) {
         this.formatParts = formatParts;
+
+        final List<String> variables = new ArrayList<>();
+        formatParts.forEach(part -> {
+            final String variableName = part.variableName();
+            if (variableName != null) {
+                variables.add(variableName);
+            }
+        });
+        this.variables = Collections.unmodifiableList(variables);
     }
 
     /**
@@ -47,6 +54,10 @@ public class DataFormat {
             throw new DataFormattingException("some error occurred during formatting data", e);
         }
         return toAppendTo;
+    }
+
+    public List<String> getVariableNames() {
+        return this.variables;
     }
 
     /**

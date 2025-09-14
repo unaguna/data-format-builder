@@ -14,6 +14,11 @@ class DataFormatPartConstant implements DataFormatPart {
         stringBuilder.append(value);
     }
 
+    @Override
+    public String variableName() {
+        return null;
+    }
+
     public String getConstValue() {
         return this.value;
     }

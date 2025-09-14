@@ -20,4 +20,9 @@ class DataFormatPartString implements DataFormatPart {
         }
         stringBuilder.append(value);
     }
+
+    @Override
+    public String variableName() {
+        return key;
+    }
 }
