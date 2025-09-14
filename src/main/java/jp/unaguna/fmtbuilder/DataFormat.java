@@ -56,6 +56,11 @@ public class DataFormat {
         return toAppendTo;
     }
 
+    /**
+     * Returns the variable names used in the format
+     *
+     * @return the variable names
+     */
     public List<String> getVariableNames() {
         return this.variables;
     }
