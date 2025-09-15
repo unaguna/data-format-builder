@@ -1,28 +1,12 @@
 package jp.unaguna.fmtbuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UnknownFormatConversionException;
 
-/**
- * DataFormat is a formatter for data consisting of field values.
- * DataFormat.Builder can be used to build formatting rules to create a DataFormat for each project-specific data.
- */
-public class DataFormat {
-    private static final int CODE_POINT_PERCENT = '%';
-    private final List<DataFormatPart> formatParts;
-    private final List<String> variables;
-
-    private DataFormat(final List<DataFormatPart> formatParts) {
-        this.formatParts = formatParts;
-
-        final List<String> variables = new ArrayList<>();
-        formatParts.forEach(part -> {
-            final String variableName = part.variableName();
-            if (variableName != null) {
-                variables.add(variableName);
-            }
-        });
-        this.variables = Collections.unmodifiableList(variables);
-    }
+public interface DataFormat {
+    int CODE_POINT_PERCENT = '%';
 
     /**
      * Formats data.
@@ -31,11 +15,7 @@ public class DataFormat {
      * @return the formatted String
      * @throws DataFormattingException if some error occurred during formatting
      */
-    public String format(final ValueProvider valueProvider) {
-        final StringBuilder stringBuilder = new StringBuilder();
-        return this.format(valueProvider, stringBuilder)
-                .toString();
-    }
+    String format(final ValueProvider valueProvider);
 
     /**
      * Formats data and appends the resulting text to the string builder.
@@ -45,25 +25,14 @@ public class DataFormat {
      * @return the value passed in as toAppendTo
      * @throws DataFormattingException if some error occurred during formatting
      */
-    public StringBuilder format(final ValueProvider valueProvider, final StringBuilder toAppendTo) {
-        try {
-            for (final DataFormatPart formatPart : formatParts) {
-                formatPart.format(toAppendTo, valueProvider);
-            }
-        } catch (final Exception e) {
-            throw new DataFormattingException("some error occurred during formatting data", e);
-        }
-        return toAppendTo;
-    }
+    StringBuilder format(final ValueProvider valueProvider, final StringBuilder toAppendTo);
 
     /**
      * Returns the variable names used in the format
      *
      * @return the variable names
      */
-    public List<String> getVariableNames() {
-        return this.variables;
-    }
+    List<String> getVariableNames();
 
     /**
      * Create a DataFormat instance which formats data by printf-formatting such as '%a'.
@@ -78,7 +47,7 @@ public class DataFormat {
      * @param fmt printf format
      * @return the DataFormat instance which formats data by the specified format
      */
-    public static DataFormat fromPrintfFormat(final String fmt) {
+    static DataFormat fromPrintfFormat(final String fmt) {
         Objects.requireNonNull(fmt);
         final Builder builder = new Builder();
         int head = 0;
@@ -112,12 +81,12 @@ public class DataFormat {
         return builder.build();
     }
 
-    public static class Builder {
+    class Builder {
         private List<DataFormatPart> formatParts = new ArrayList<>();
 
         public DataFormat build() {
             compressConstants();
-            return new DataFormat(formatParts);
+            return new SimpleDataFormat(formatParts);
         }
 
         public Builder constant(final String value) {
