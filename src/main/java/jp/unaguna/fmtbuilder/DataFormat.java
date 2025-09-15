@@ -126,7 +126,11 @@ public class DataFormat {
         }
 
         public Builder string(final String key) {
-            formatParts.add(new DataFormatPartString(key));
+            return string(key, ValuePadding.NONE);
+        }
+
+        public Builder string(final String key, final ValuePadding padding) {
+            formatParts.add(new DataFormatPartString(key, padding));
             return this;
         }
 
