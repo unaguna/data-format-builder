@@ -1,6 +1,8 @@
 package jp.unaguna.fmtbuilder;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.MissingFormatArgumentException;
 
@@ -127,6 +129,30 @@ public class DataFormatTest {
                 .build();
 
         assertArrayEquals(new String[]{"key1", "key2"}, dataFormat.getVariableNames().toArray(new String[0]));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "LEFT, value='      test'",
+            "RIGHT, value='test      '"
+    })
+    public void testPadding(final ValuePadding padding, final String expected) {
+        final SimpleDataFormat dataFormat = (SimpleDataFormat) new DataFormat.Builder()
+                .constant("value='")
+                .string("key", padding)
+                .constant("'")
+                .build();
+
+        final FieldWidthProvider fieldWidthProvider = fieldName -> 10;
+
+        final String actual = dataFormat.format(key -> {
+            if ("key".equals(key)) {
+                return "test";
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }, fieldWidthProvider);
+        assertEquals(expected, actual);
     }
 
     static class DummyProvider implements ValueProvider {

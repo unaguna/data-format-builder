@@ -30,11 +30,34 @@ public class SimpleDataFormat implements DataFormat {
                 .toString();
     }
 
+    public String format(final ValueProvider valueProvider, final FieldWidthProvider fieldWidthProvider) {
+        final StringBuilder stringBuilder = new StringBuilder();
+        return this.format(valueProvider, fieldWidthProvider, stringBuilder)
+                .toString();
+    }
+
     @Override
     public StringBuilder format(final ValueProvider valueProvider, final StringBuilder toAppendTo) {
+        return format(valueProvider, FieldWidthProvider.empty, toAppendTo);
+    }
+
+    public StringBuilder format(
+            final ValueProvider valueProvider,
+            FieldWidthProvider fieldWidthProvider,
+            final StringBuilder toAppendTo) {
+
+        if (fieldWidthProvider == null) {
+            fieldWidthProvider = FieldWidthProvider.empty;
+        }
+
         try {
             for (final DataFormatPart formatPart : formatParts) {
-                formatPart.format(toAppendTo, valueProvider);
+                final String variableName = formatPart.variableName();
+                final Integer width = variableName != null
+                        ? fieldWidthProvider.getWidth(variableName)
+                        : null;
+
+                formatPart.format(toAppendTo, valueProvider, width);
             }
         } catch (final Exception e) {
             throw new DataFormattingException("some error occurred during formatting data", e);

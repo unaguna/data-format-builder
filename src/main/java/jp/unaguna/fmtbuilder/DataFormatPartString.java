@@ -13,14 +13,29 @@ class DataFormatPartString implements DataFormatPart {
     }
 
     @Override
-    public void format(final StringBuilder stringBuilder, final ValueProvider valueProvider) {
-        final Object value;
+    public void format(final StringBuilder stringBuilder, final ValueProvider valueProvider, final Integer width) {
+        final String value;
         try {
-            value = valueProvider.get(key);
+            value = valueProvider.get(key).toString();
         } catch (IllegalArgumentException e) {
             throw new MissingFormatArgumentException(key);
         }
+
+        // padding left
+        if (padding == ValuePadding.LEFT) {
+            for(int i = value.length(); i< width; i++) {
+                stringBuilder.append(" ");
+            }
+        }
+
         stringBuilder.append(value);
+
+        // padding right
+        if (padding == ValuePadding.RIGHT) {
+            for(int i = value.length(); i< width; i++) {
+                stringBuilder.append(" ");
+            }
+        }
     }
 
     @Override
