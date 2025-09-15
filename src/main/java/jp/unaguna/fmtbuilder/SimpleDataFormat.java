@@ -2,10 +2,6 @@ package jp.unaguna.fmtbuilder;
 
 import java.util.*;
 
-/**
- * DataFormat is a formatter for data consisting of field values.
- * DataFormat.Builder can be used to build formatting rules to create a DataFormat for each project-specific data.
- */
 public class SimpleDataFormat implements DataFormat {
     private final List<DataFormatPart> formatParts;
     private final List<String> variables;

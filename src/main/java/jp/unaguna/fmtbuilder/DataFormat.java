@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UnknownFormatConversionException;
 
+/**
+ * DataFormat is a formatter for data consisting of field values.
+ * DataFormat.Builder can be used to build formatting rules to create a DataFormat for each project-specific data.
+ */
 public interface DataFormat {
     int CODE_POINT_PERCENT = '%';
 

@@ -2,6 +2,23 @@ package jp.unaguna.fmtbuilder;
 
 import java.util.*;
 
+/**
+ * The iterator of formatted data line as table row.
+ *
+ * <p>
+ * This iterator buffers the data.
+ * It then obtains the maximum width of each variable's value to pad the output string,
+ * ensuring the variable display aligns vertically.
+ * </p>
+ *
+ * <p>
+ * This object returns a formatted string one line at a time as an iterator.
+ * Instead of {@link #next()} that returns a string,
+ * you can also use {@link #nextFormat(StringBuilder)}, which appends the formatted string to the StringBuilder.
+ * </p>
+ *
+ * @param <T> Data equivalent to one line
+ */
 public class TableDataFormatIterator<T> implements Iterator<String> {
     private int blockSize = Integer.MAX_VALUE;
     private final DataFormat baseDataFormat;
@@ -30,7 +47,6 @@ public class TableDataFormatIterator<T> implements Iterator<String> {
         return this.blockSize;
     }
 
-    /** イテレータから次のブロックを取得 */
     private void loadNextBlock() {
         if (!dataBuffer.isEmpty()) {
             throw new IllegalStateException("cannot load next data block; buffer is not empty");
