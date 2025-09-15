@@ -19,6 +19,10 @@ public class TableDataFormatIterator<T> implements Iterator<String> {
     }
 
     public void setBlockSize(final int blockSize) {
+        if (blockSize <= 0) {
+            throw new IllegalArgumentException("blockSize must be positive integer");
+        }
+
         this.blockSize = blockSize;
     }
 

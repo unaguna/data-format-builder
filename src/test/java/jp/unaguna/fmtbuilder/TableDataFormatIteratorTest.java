@@ -31,6 +31,24 @@ public class TableDataFormatIteratorTest {
     }
 
     @ParameterizedTest
+    @ValueSource(ints = {0, -1})
+    public void testGetBlockSize__error_with_non_positive(int blockSize) {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .build();
+
+        final List<ValueProvider> data = new ArrayList<>();
+        data.add(null);
+
+        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
+                = new TableDataFormatIteratorWithoutAdapter<>(
+                dataFormat,
+                data.iterator()
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> tableDataFormatIterator.setBlockSize(blockSize));
+    }
+
+    @ParameterizedTest
     @ValueSource(ints = {3, -1})
     public void testPadding(int blockSize) {
         final DataFormat dataFormat = new DataFormat.Builder()
