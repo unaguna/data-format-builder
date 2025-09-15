@@ -137,7 +137,7 @@ public class DataFormatTest {
             "RIGHT, value='test      '"
     })
     public void testPadding(final ValuePadding padding, final String expected) {
-        final SimpleDataFormat dataFormat = (SimpleDataFormat) new DataFormat.Builder()
+        final DataFormat dataFormat = new DataFormat.Builder()
                 .constant("value='")
                 .string("key", padding)
                 .constant("'")

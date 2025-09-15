@@ -18,6 +18,17 @@ public interface DataFormat {
     String format(final ValueProvider valueProvider);
 
     /**
+     * Formats data.
+     *
+     * @param valueProvider the data to format
+     * @param fieldWidthProvider the provider of minimum width of each variable.
+     *                           This minimum width is used only for variables whose padding mode is specified.
+     * @return the formatted String
+     * @throws DataFormattingException if some error occurred during formatting
+     */
+    String format(final ValueProvider valueProvider, final FieldWidthProvider fieldWidthProvider);
+
+    /**
      * Formats data and appends the resulting text to the string builder.
      *
      * @param valueProvider the data to format
@@ -26,6 +37,21 @@ public interface DataFormat {
      * @throws DataFormattingException if some error occurred during formatting
      */
     StringBuilder format(final ValueProvider valueProvider, final StringBuilder toAppendTo);
+
+    /**
+     * Formats data and appends the resulting text to the string builder.
+     *
+     * @param valueProvider the data to format
+     * @param fieldWidthProvider the provider of minimum width of each variable.
+     *                           This minimum width is used only for variables whose padding mode is specified.
+     * @param toAppendTo the string buffer to which the formatted text is to be appended
+     * @return the value passed in as toAppendTo
+     * @throws DataFormattingException if some error occurred during formatting
+     */
+    StringBuilder format(
+            final ValueProvider valueProvider,
+            final FieldWidthProvider fieldWidthProvider,
+            final StringBuilder toAppendTo);
 
     /**
      * Returns the variable names used in the format

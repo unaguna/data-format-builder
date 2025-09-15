@@ -30,6 +30,7 @@ public class SimpleDataFormat implements DataFormat {
                 .toString();
     }
 
+    @Override
     public String format(final ValueProvider valueProvider, final FieldWidthProvider fieldWidthProvider) {
         final StringBuilder stringBuilder = new StringBuilder();
         return this.format(valueProvider, fieldWidthProvider, stringBuilder)
@@ -41,6 +42,7 @@ public class SimpleDataFormat implements DataFormat {
         return format(valueProvider, FieldWidthProvider.empty, toAppendTo);
     }
 
+    @Override
     public StringBuilder format(
             final ValueProvider valueProvider,
             FieldWidthProvider fieldWidthProvider,
