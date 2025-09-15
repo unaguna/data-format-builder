@@ -3,7 +3,7 @@ package jp.unaguna.fmtbuilder;
 import java.util.*;
 
 public class TableDataFormatIterator<T> implements Iterator<String> {
-    private final static int blockSize = 8192;
+    private int blockSize = Integer.MAX_VALUE;
     private final DataFormat baseDataFormat;
     private final ValueProviderAdapter<T> adapter;
     private final Iterator<T> dataIterator;
@@ -16,6 +16,14 @@ public class TableDataFormatIterator<T> implements Iterator<String> {
         this.baseDataFormat = baseDataFormat;
         this.dataIterator = dataIterator;
         this.adapter = adapter;
+    }
+
+    public void setBlockSize(final int blockSize) {
+        this.blockSize = blockSize;
+    }
+
+    public int getBlockSize() {
+        return this.blockSize;
     }
 
     /** イテレータから次のブロックを取得 */

@@ -1,6 +1,8 @@
 package jp.unaguna.fmtbuilder;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +10,29 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TableDataFormatIteratorTest {
-
     @Test
-    public void testPadding() {
+    public void testGetBlockSize() {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .build();
+
+        final List<ValueProvider> data = new ArrayList<>();
+        data.add(null);
+
+        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
+                = new TableDataFormatIteratorWithoutAdapter<>(
+                dataFormat,
+                data.iterator()
+        );
+
+        tableDataFormatIterator.setBlockSize(100);
+        assertEquals(100, tableDataFormatIterator.getBlockSize());
+        tableDataFormatIterator.setBlockSize(50);
+        assertEquals(50, tableDataFormatIterator.getBlockSize());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {3, -1})
+    public void testPadding(int blockSize) {
         final DataFormat dataFormat = new DataFormat.Builder()
                 .string("key1", ValuePadding.LEFT)
                 .constant(" ")
@@ -24,12 +46,16 @@ public class TableDataFormatIteratorTest {
         data.add(key -> "key" + repeat(key.charAt(3), 1 * Integer.parseInt(String.valueOf(key.charAt(3)))));
         data.add(key -> "key" + repeat(key.charAt(3), 2 * Integer.parseInt(String.valueOf(key.charAt(3)))));
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
+        data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
 
         final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
                 = new TableDataFormatIteratorWithoutAdapter<>(
                 dataFormat,
                 data.iterator()
         );
+        if (blockSize > 0) {
+            tableDataFormatIterator.setBlockSize(blockSize);
+        }
 
         final List<String> actualLines = new ArrayList<>();
         for (ValueProvider record : data) {
@@ -42,11 +68,13 @@ public class TableDataFormatIteratorTest {
         assertEquals("  key1 key22     key333 key4444", actualLines.get(0));
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
+        assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
         assertFalse(tableDataFormatIterator.hasNext());
     }
 
-    @Test
-    public void testPaddingWithAdapter() {
+    @ParameterizedTest
+    @ValueSource(ints = {3, -1})
+    public void testPaddingWithAdapter(int blockSize) {
         final DataFormat dataFormat = new DataFormat.Builder()
                 .string("key1", ValuePadding.LEFT)
                 .constant(" ")
@@ -59,6 +87,7 @@ public class TableDataFormatIteratorTest {
         final List<Integer> data = new ArrayList<>();
         data.add(1);
         data.add(2);
+        data.add(3);
         data.add(3);
 
         final ValueProviderAdapter<Integer> adapter = new ValueProviderAdapter.Builder<Integer>()
@@ -74,6 +103,9 @@ public class TableDataFormatIteratorTest {
                         data.iterator(),
                         adapter
                 );
+        if (blockSize > 0) {
+            tableDataFormatIterator.setBlockSize(blockSize);
+        }
 
         final List<String> actualLines = new ArrayList<>();
         for (int record : data) {
@@ -86,6 +118,7 @@ public class TableDataFormatIteratorTest {
         assertEquals("  key1 key22     key333 key4444", actualLines.get(0));
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
+        assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
         assertFalse(tableDataFormatIterator.hasNext());
     }
 
