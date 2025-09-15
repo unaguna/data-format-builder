@@ -37,7 +37,7 @@ public abstract class ValueProviderAdapter<T> implements ValueProvider {
         this.element = element;
     }
 
-    public static class AsIs extends ValueProviderAdapter<ValueProvider> {
+    public static class AsIs<T extends ValueProvider> extends ValueProviderAdapter<T> {
         @Override
         public Object get(String key) {
             return element.get(key);

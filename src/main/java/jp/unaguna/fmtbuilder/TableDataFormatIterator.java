@@ -2,7 +2,7 @@ package jp.unaguna.fmtbuilder;
 
 import java.util.*;
 
-public class TableDataFormatIteratorWithAdapter<T> implements Iterator<String> {
+public class TableDataFormatIterator<T> implements Iterator<String> {
     private final static int blockSize = 8192;
     private final DataFormat baseDataFormat;
     private final ValueProviderAdapter<T> adapter;
@@ -10,7 +10,7 @@ public class TableDataFormatIteratorWithAdapter<T> implements Iterator<String> {
     private final List<T> dataBuffer = new LinkedList<>();
     private final TableFieldHolder widthProvider = new TableFieldHolder();
 
-    public TableDataFormatIteratorWithAdapter(
+    public TableDataFormatIterator(
             final DataFormat baseDataFormat, final Iterator<T> dataIterator, final ValueProviderAdapter<T> adapter) {
 
         this.baseDataFormat = baseDataFormat;

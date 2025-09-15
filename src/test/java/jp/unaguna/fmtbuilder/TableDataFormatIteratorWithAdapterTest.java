@@ -26,11 +26,10 @@ public class TableDataFormatIteratorWithAdapterTest {
         data.add(key -> "key" + repeat(key.charAt(3), 2 * Integer.parseInt(String.valueOf(key.charAt(3)))));
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
 
-        final TableDataFormatIteratorWithAdapter<ValueProvider> tableDataFormatIterator
-                = new TableDataFormatIteratorWithAdapter<>(
+        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
+                = new TableDataFormatIteratorWithoutAdapter<>(
                 dataFormat,
-                data.iterator(),
-                new ValueProviderAdapter.AsIs()
+                data.iterator()
         );
 
         final List<String> actualLines = new ArrayList<>();
@@ -69,8 +68,8 @@ public class TableDataFormatIteratorWithAdapterTest {
                 .addProvider("key4", i -> "key" + repeat("4444", i))
                 .build();
 
-        final TableDataFormatIteratorWithAdapter<Integer> tableDataFormatIterator
-                = new TableDataFormatIteratorWithAdapter<>(
+        final TableDataFormatIterator<Integer> tableDataFormatIterator
+                = new TableDataFormatIterator<>(
                         dataFormat,
                         data.iterator(),
                         adapter
