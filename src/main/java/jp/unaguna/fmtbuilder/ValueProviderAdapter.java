@@ -37,6 +37,13 @@ public abstract class ValueProviderAdapter<T> implements ValueProvider {
         this.element = element;
     }
 
+    public static class AsIs extends ValueProviderAdapter<ValueProvider> {
+        @Override
+        public Object get(String key) {
+            return element.get(key);
+        }
+    }
+
     public static class Builder<T> {
         private final Map<String, Function<T, Object>> providers = new HashMap<>();
 
