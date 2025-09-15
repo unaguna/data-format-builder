@@ -78,6 +78,24 @@ public interface DataFormat {
      * @return the DataFormat instance which formats data by the specified format
      */
     static DataFormat fromPrintfFormat(final String fmt) {
+        return fromPrintfFormat(fmt, new VariablePaddingSpecifications());
+    }
+
+    /**
+     * Create a DataFormat instance which formats data by printf-formatting such as '%a'.
+     *
+     * <p>
+     * The created DateFormat treats the first two characters starting with % as placeholders,
+     * and when formatting, it retrieves the value using the placeholder string as the key and embeds it.
+     * For example, if you specify '%abc' as the format, the value of %a is retrieved during formatting.
+     * If this value is 'ABC', the result will be 'ABCbc'. However, '%%' is an exception and '%' is embedded.
+     * </p>
+     *
+     * @param fmt printf format
+     * @param paddingSpecs specification of padding mode of each variable
+     * @return the DataFormat instance which formats data by the specified format
+     */
+    static DataFormat fromPrintfFormat(final String fmt, final VariablePaddingSpecifications paddingSpecs) {
         Objects.requireNonNull(fmt);
         final Builder builder = new Builder();
         int head = 0;
@@ -89,7 +107,8 @@ public interface DataFormat {
                 if (headCodePoint == CODE_POINT_PERCENT) {
                     builder.constant("%");
                 } else {
-                    builder.string("%" + new String(Character.toChars(headCodePoint)));
+                    final String variableName = "%" + new String(Character.toChars(headCodePoint));
+                    builder.string(variableName, paddingSpecs.get(variableName));
                 }
                 percent = false;
 

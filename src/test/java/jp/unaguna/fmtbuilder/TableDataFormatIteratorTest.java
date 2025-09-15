@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -127,6 +128,48 @@ public class TableDataFormatIteratorTest {
 
         final List<String> actualLines = new ArrayList<>();
         for (int record : data) {
+            assertTrue(tableDataFormatIterator.hasNext());
+            final String line = tableDataFormatIterator.next();
+            actualLines.add(line);
+            System.out.println(line);
+        }
+        assertEquals(data.size(), actualLines.size());
+        assertEquals("  key1 key22     key333 key4444", actualLines.get(0));
+        assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
+        assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
+        assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
+        assertFalse(tableDataFormatIterator.hasNext());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {3, -1})
+    public void testPaddingFromPrintf(int blockSize) {
+        // function: a -> 1, b -> 2, ...
+        final Function<String, Integer> keyToNum = key -> key.charAt(1) - 96;
+
+        final DataFormat dataFormat = DataFormat.fromPrintfFormat(
+                "%a %b %c %d",
+                new VariablePaddingSpecifications()
+                        .add("%a", ValuePadding.LEFT)
+                        .add("%b", ValuePadding.RIGHT)
+        );
+        final List<ValueProvider> data = new ArrayList<>();
+        data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 1 * keyToNum.apply(key)));
+        data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 2 * keyToNum.apply(key)));
+        data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 3 * keyToNum.apply(key)));
+        data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 3 * keyToNum.apply(key)));
+
+        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
+                = new TableDataFormatIteratorWithoutAdapter<>(
+                dataFormat,
+                data.iterator()
+        );
+        if (blockSize > 0) {
+            tableDataFormatIterator.setBlockSize(blockSize);
+        }
+
+        final List<String> actualLines = new ArrayList<>();
+        for (ValueProvider record : data) {
             assertTrue(tableDataFormatIterator.hasNext());
             final String line = tableDataFormatIterator.next();
             actualLines.add(line);
