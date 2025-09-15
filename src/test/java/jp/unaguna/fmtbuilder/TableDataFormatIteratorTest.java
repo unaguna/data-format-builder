@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TableDataFormatIteratorTest {
 
@@ -43,6 +42,7 @@ public class TableDataFormatIteratorTest {
         assertEquals("  key1 key22     key333 key4444", actualLines.get(0));
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
+        assertFalse(tableDataFormatIterator.hasNext());
     }
 
     @Test
@@ -86,6 +86,7 @@ public class TableDataFormatIteratorTest {
         assertEquals("  key1 key22     key333 key4444", actualLines.get(0));
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
+        assertFalse(tableDataFormatIterator.hasNext());
     }
 
     private String repeat(final Object base, final int num) {
