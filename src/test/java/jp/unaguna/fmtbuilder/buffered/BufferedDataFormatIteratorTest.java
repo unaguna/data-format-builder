@@ -285,6 +285,54 @@ public class BufferedDataFormatIteratorTest {
         assertFalse(tableDataFormatIterator.hasNext());
     }
 
+    @Test
+    public void testPaddingWithBufferEditorAndBufferObserver() {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .string("key1", ValuePadding.LEFT)
+                .constant(" ")
+                .string("key2", ValuePadding.RIGHT)
+                .constant(" ")
+                .string("key3")
+                .constant(" ")
+                .string("key4")
+                .build();
+        final List<Integer> data = new ArrayList<>();
+        data.add(1);
+        data.add(2);
+        data.add(3);
+        data.add(3);
+
+        final ValueProviderAdapter<Integer> adapter = new ValueProviderAdapter.Builder<Integer>()
+                .addProvider("key1", i -> "key" + repeat("1", i))
+                .addProvider("key2", i -> "key" + repeat("22", i))
+                .addProvider("key3", i -> "key" + repeat("333", i))
+                .addProvider("key4", i -> "key" + repeat("4444", i))
+                .build();
+
+        final List<Integer> observed = new ArrayList<>();
+        final BufferedDataFormatIterator<Integer> tableDataFormatIterator
+                = new BufferedDataFormatIterator<>(
+                dataFormat,
+                data.iterator(),
+                adapter
+        )
+                .useDefaultWidthProviderProvider()
+                .applyBufferObserver((buffer, ad) -> observed.addAll(buffer))
+                // sort with BufferEditor before BufferObserver runs even if applied after
+                .applyBufferEditor(((buffer, ad) -> buffer.sort((a, b) -> b - a)));
+
+        final List<String> actualLines = new ArrayList<>();
+        for (int record : data) {
+            assertTrue(tableDataFormatIterator.hasNext());
+            final String line = tableDataFormatIterator.next();
+            actualLines.add(line);
+            System.out.println(line);
+        }
+        assertEquals(data.size(), actualLines.size());
+        assertArrayEquals(new Integer[]{3, 3, 2, 1}, observed.toArray(new Integer[0]));
+        assertFalse(tableDataFormatIterator.hasNext());
+    }
+
     private String repeat(final Object base, final int num) {
         final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < num; i++) {
