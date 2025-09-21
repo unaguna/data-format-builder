@@ -20,17 +20,17 @@ public class BufferedDataFormatIteratorTest {
         final List<ValueProvider> data = new ArrayList<>();
         data.add(null);
 
-        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+        final BufferedDataFormatIterator<ValueProvider> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                 dataFormat,
                 data.iterator(),
                 new ValueProviderAdapter.AsIs<>()
         );
 
-        tableDataFormatIterator.setBlockSize(100);
-        assertEquals(100, tableDataFormatIterator.getBlockSize());
-        tableDataFormatIterator.setBlockSize(50);
-        assertEquals(50, tableDataFormatIterator.getBlockSize());
+        bufferedDataFormatIterator.setBlockSize(100);
+        assertEquals(100, bufferedDataFormatIterator.getBlockSize());
+        bufferedDataFormatIterator.setBlockSize(50);
+        assertEquals(50, bufferedDataFormatIterator.getBlockSize());
     }
 
     @ParameterizedTest
@@ -42,14 +42,14 @@ public class BufferedDataFormatIteratorTest {
         final List<ValueProvider> data = new ArrayList<>();
         data.add(null);
 
-        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+        final BufferedDataFormatIterator<ValueProvider> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                 dataFormat,
                 data.iterator(),
                 new ValueProviderAdapter.AsIs<>()
         );
 
-        assertThrows(IllegalArgumentException.class, () -> tableDataFormatIterator.setBlockSize(blockSize));
+        assertThrows(IllegalArgumentException.class, () -> bufferedDataFormatIterator.setBlockSize(blockSize));
     }
 
     @ParameterizedTest
@@ -70,7 +70,7 @@ public class BufferedDataFormatIteratorTest {
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
 
-        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+        final BufferedDataFormatIterator<ValueProvider> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                 dataFormat,
                 data.iterator(),
@@ -78,13 +78,13 @@ public class BufferedDataFormatIteratorTest {
         )
                 .useDefaultWidthProviderProvider();
         if (blockSize > 0) {
-            tableDataFormatIterator.setBlockSize(blockSize);
+            bufferedDataFormatIterator.setBlockSize(blockSize);
         }
 
         final List<String> actualLines = new ArrayList<>();
         for (ValueProvider record : data) {
-            assertTrue(tableDataFormatIterator.hasNext());
-            final String line = tableDataFormatIterator.next();
+            assertTrue(bufferedDataFormatIterator.hasNext());
+            final String line = bufferedDataFormatIterator.next();
             actualLines.add(line);
             System.out.println(line);
         }
@@ -93,7 +93,7 @@ public class BufferedDataFormatIteratorTest {
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
-        assertFalse(tableDataFormatIterator.hasNext());
+        assertFalse(bufferedDataFormatIterator.hasNext());
     }
 
     @ParameterizedTest
@@ -114,7 +114,7 @@ public class BufferedDataFormatIteratorTest {
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
 
-        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+        final BufferedDataFormatIterator<ValueProvider> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                 dataFormat,
                 data.iterator(),
@@ -123,13 +123,13 @@ public class BufferedDataFormatIteratorTest {
         // don't use width provider provider
                 //.useDefaultWidthProviderProvider();
         if (blockSize > 0) {
-            tableDataFormatIterator.setBlockSize(blockSize);
+            bufferedDataFormatIterator.setBlockSize(blockSize);
         }
 
         final List<String> actualLines = new ArrayList<>();
         for (ValueProvider record : data) {
-            assertTrue(tableDataFormatIterator.hasNext());
-            final String line = tableDataFormatIterator.next();
+            assertTrue(bufferedDataFormatIterator.hasNext());
+            final String line = bufferedDataFormatIterator.next();
             actualLines.add(line);
             System.out.println(line);
         }
@@ -138,7 +138,7 @@ public class BufferedDataFormatIteratorTest {
         assertEquals("key11 key2222 key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
-        assertFalse(tableDataFormatIterator.hasNext());
+        assertFalse(bufferedDataFormatIterator.hasNext());
     }
 
     @ParameterizedTest
@@ -166,7 +166,7 @@ public class BufferedDataFormatIteratorTest {
                 .addProvider("key4", i -> "key" + repeat("4444", i))
                 .build();
 
-        final BufferedDataFormatIterator<Integer> tableDataFormatIterator
+        final BufferedDataFormatIterator<Integer> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                         dataFormat,
                         data.iterator(),
@@ -174,13 +174,13 @@ public class BufferedDataFormatIteratorTest {
                 )
                 .useDefaultWidthProviderProvider();
         if (blockSize > 0) {
-            tableDataFormatIterator.setBlockSize(blockSize);
+            bufferedDataFormatIterator.setBlockSize(blockSize);
         }
 
         final List<String> actualLines = new ArrayList<>();
         for (int record : data) {
-            assertTrue(tableDataFormatIterator.hasNext());
-            final String line = tableDataFormatIterator.next();
+            assertTrue(bufferedDataFormatIterator.hasNext());
+            final String line = bufferedDataFormatIterator.next();
             actualLines.add(line);
             System.out.println(line);
         }
@@ -189,7 +189,7 @@ public class BufferedDataFormatIteratorTest {
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
-        assertFalse(tableDataFormatIterator.hasNext());
+        assertFalse(bufferedDataFormatIterator.hasNext());
     }
 
     @ParameterizedTest
@@ -210,7 +210,7 @@ public class BufferedDataFormatIteratorTest {
         data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 3 * keyToNum.apply(key)));
         data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 3 * keyToNum.apply(key)));
 
-        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+        final BufferedDataFormatIterator<ValueProvider> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                 dataFormat,
                 data.iterator(),
@@ -218,13 +218,13 @@ public class BufferedDataFormatIteratorTest {
         )
                 .useDefaultWidthProviderProvider();
         if (blockSize > 0) {
-            tableDataFormatIterator.setBlockSize(blockSize);
+            bufferedDataFormatIterator.setBlockSize(blockSize);
         }
 
         final List<String> actualLines = new ArrayList<>();
         for (ValueProvider record : data) {
-            assertTrue(tableDataFormatIterator.hasNext());
-            final String line = tableDataFormatIterator.next();
+            assertTrue(bufferedDataFormatIterator.hasNext());
+            final String line = bufferedDataFormatIterator.next();
             actualLines.add(line);
             System.out.println(line);
         }
@@ -233,7 +233,7 @@ public class BufferedDataFormatIteratorTest {
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
-        assertFalse(tableDataFormatIterator.hasNext());
+        assertFalse(bufferedDataFormatIterator.hasNext());
     }
 
     @Test
@@ -260,7 +260,7 @@ public class BufferedDataFormatIteratorTest {
                 .addProvider("key4", i -> "key" + repeat("4444", i))
                 .build();
 
-        final BufferedDataFormatIterator<Integer> tableDataFormatIterator
+        final BufferedDataFormatIterator<Integer> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                 dataFormat,
                 data.iterator(),
@@ -272,8 +272,8 @@ public class BufferedDataFormatIteratorTest {
 
         final List<String> actualLines = new ArrayList<>();
         for (int record : data) {
-            assertTrue(tableDataFormatIterator.hasNext());
-            final String line = tableDataFormatIterator.next();
+            assertTrue(bufferedDataFormatIterator.hasNext());
+            final String line = bufferedDataFormatIterator.next();
             actualLines.add(line);
             System.out.println(line);
         }
@@ -282,7 +282,7 @@ public class BufferedDataFormatIteratorTest {
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(1));
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(2));
         assertEquals("  key1 key22     key333 key4444", actualLines.get(3));
-        assertFalse(tableDataFormatIterator.hasNext());
+        assertFalse(bufferedDataFormatIterator.hasNext());
     }
 
     @Test
@@ -310,7 +310,7 @@ public class BufferedDataFormatIteratorTest {
                 .build();
 
         final List<Integer> observed = new ArrayList<>();
-        final BufferedDataFormatIterator<Integer> tableDataFormatIterator
+        final BufferedDataFormatIterator<Integer> bufferedDataFormatIterator
                 = new BufferedDataFormatIterator<>(
                 dataFormat,
                 data.iterator(),
@@ -323,14 +323,14 @@ public class BufferedDataFormatIteratorTest {
 
         final List<String> actualLines = new ArrayList<>();
         for (int record : data) {
-            assertTrue(tableDataFormatIterator.hasNext());
-            final String line = tableDataFormatIterator.next();
+            assertTrue(bufferedDataFormatIterator.hasNext());
+            final String line = bufferedDataFormatIterator.next();
             actualLines.add(line);
             System.out.println(line);
         }
         assertEquals(data.size(), actualLines.size());
         assertArrayEquals(new Integer[]{3, 3, 2, 1}, observed.toArray(new Integer[0]));
-        assertFalse(tableDataFormatIterator.hasNext());
+        assertFalse(bufferedDataFormatIterator.hasNext());
     }
 
     private String repeat(final Object base, final int num) {
