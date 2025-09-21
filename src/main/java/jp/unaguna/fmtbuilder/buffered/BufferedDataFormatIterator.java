@@ -40,10 +40,20 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
         this.adapter = adapter;
     }
 
+    public BufferedDataFormatIterator<T> applyBufferEditor(final BufferEditor<T> bufferEditor) {
+        this.bufferEditors.add(bufferEditor);
+        return this;
+    }
+
+    public BufferedDataFormatIterator<T> applyBufferObserver(final BufferObserver<T> bufferObserver) {
+        this.bufferObservers.add(bufferObserver);
+        return this;
+    }
+
     public BufferedDataFormatIterator<T> useDefaultWidthProviderProvider() {
         final DefaultWidthProviderProvider<T> wpp = new DefaultWidthProviderProvider<>(baseDataFormat);
         widthProviderProvider = wpp;
-        bufferObservers.add(wpp);
+        applyBufferObserver(wpp);
 
         return this;
     }
