@@ -22,7 +22,7 @@ class DataFormatPartString implements DataFormatPart {
         }
 
         // padding left
-        if (padding == ValuePadding.LEFT) {
+        if (width != null && padding == ValuePadding.LEFT) {
             for(int i = value.length(); i< width; i++) {
                 stringBuilder.append(" ");
             }
@@ -31,7 +31,7 @@ class DataFormatPartString implements DataFormatPart {
         stringBuilder.append(value);
 
         // padding right
-        if (padding == ValuePadding.RIGHT) {
+        if (width != null && padding == ValuePadding.RIGHT) {
             for(int i = value.length(); i< width; i++) {
                 stringBuilder.append(" ");
             }

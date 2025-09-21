@@ -1,5 +1,6 @@
-package jp.unaguna.fmtbuilder;
+package jp.unaguna.fmtbuilder.buffered;
 
+import jp.unaguna.fmtbuilder.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -10,7 +11,7 @@ import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TableDataFormatIteratorTest {
+public class BufferedDataFormatIteratorTest {
     @Test
     public void testGetBlockSize() {
         final DataFormat dataFormat = new DataFormat.Builder()
@@ -19,10 +20,11 @@ public class TableDataFormatIteratorTest {
         final List<ValueProvider> data = new ArrayList<>();
         data.add(null);
 
-        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
-                = new TableDataFormatIteratorWithoutAdapter<>(
+        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+                = new BufferedDataFormatIterator<>(
                 dataFormat,
-                data.iterator()
+                data.iterator(),
+                new ValueProviderAdapter.AsIs<>()
         );
 
         tableDataFormatIterator.setBlockSize(100);
@@ -40,10 +42,11 @@ public class TableDataFormatIteratorTest {
         final List<ValueProvider> data = new ArrayList<>();
         data.add(null);
 
-        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
-                = new TableDataFormatIteratorWithoutAdapter<>(
+        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+                = new BufferedDataFormatIterator<>(
                 dataFormat,
-                data.iterator()
+                data.iterator(),
+                new ValueProviderAdapter.AsIs<>()
         );
 
         assertThrows(IllegalArgumentException.class, () -> tableDataFormatIterator.setBlockSize(blockSize));
@@ -67,11 +70,13 @@ public class TableDataFormatIteratorTest {
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
         data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
 
-        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
-                = new TableDataFormatIteratorWithoutAdapter<>(
+        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+                = new BufferedDataFormatIterator<>(
                 dataFormat,
-                data.iterator()
-        );
+                data.iterator(),
+                new ValueProviderAdapter.AsIs<>()
+        )
+                .useDefaultWidthProviderProvider();
         if (blockSize > 0) {
             tableDataFormatIterator.setBlockSize(blockSize);
         }
@@ -86,6 +91,51 @@ public class TableDataFormatIteratorTest {
         assertEquals(data.size(), actualLines.size());
         assertEquals("  key1 key22     key333 key4444", actualLines.get(0));
         assertEquals(" key11 key2222   key333333 key44444444", actualLines.get(1));
+        assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
+        assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
+        assertFalse(tableDataFormatIterator.hasNext());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {3, -1})
+    public void testPaddingWithoutWidthProvider(int blockSize) {
+        final DataFormat dataFormat = new DataFormat.Builder()
+                .string("key1", ValuePadding.LEFT)
+                .constant(" ")
+                .string("key2", ValuePadding.RIGHT)
+                .constant(" ")
+                .string("key3")
+                .constant(" ")
+                .string("key4")
+                .build();
+        final List<ValueProvider> data = new ArrayList<>();
+        data.add(key -> "key" + repeat(key.charAt(3), 1 * Integer.parseInt(String.valueOf(key.charAt(3)))));
+        data.add(key -> "key" + repeat(key.charAt(3), 2 * Integer.parseInt(String.valueOf(key.charAt(3)))));
+        data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
+        data.add(key -> "key" + repeat(key.charAt(3), 3 * Integer.parseInt(String.valueOf(key.charAt(3)))));
+
+        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+                = new BufferedDataFormatIterator<>(
+                dataFormat,
+                data.iterator(),
+                new ValueProviderAdapter.AsIs<>()
+        );
+        // don't use width provider provider
+                //.useDefaultWidthProviderProvider();
+        if (blockSize > 0) {
+            tableDataFormatIterator.setBlockSize(blockSize);
+        }
+
+        final List<String> actualLines = new ArrayList<>();
+        for (ValueProvider record : data) {
+            assertTrue(tableDataFormatIterator.hasNext());
+            final String line = tableDataFormatIterator.next();
+            actualLines.add(line);
+            System.out.println(line);
+        }
+        assertEquals(data.size(), actualLines.size());
+        assertEquals("key1 key22 key333 key4444", actualLines.get(0));
+        assertEquals("key11 key2222 key333333 key44444444", actualLines.get(1));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(2));
         assertEquals("key111 key222222 key333333333 key444444444444", actualLines.get(3));
         assertFalse(tableDataFormatIterator.hasNext());
@@ -116,12 +166,13 @@ public class TableDataFormatIteratorTest {
                 .addProvider("key4", i -> "key" + repeat("4444", i))
                 .build();
 
-        final TableDataFormatIterator<Integer> tableDataFormatIterator
-                = new TableDataFormatIterator<>(
+        final BufferedDataFormatIterator<Integer> tableDataFormatIterator
+                = new BufferedDataFormatIterator<>(
                         dataFormat,
                         data.iterator(),
                         adapter
-                );
+                )
+                .useDefaultWidthProviderProvider();
         if (blockSize > 0) {
             tableDataFormatIterator.setBlockSize(blockSize);
         }
@@ -159,11 +210,13 @@ public class TableDataFormatIteratorTest {
         data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 3 * keyToNum.apply(key)));
         data.add(key -> "key" + repeat(keyToNum.apply(key).toString(), 3 * keyToNum.apply(key)));
 
-        final TableDataFormatIteratorWithoutAdapter<ValueProvider> tableDataFormatIterator
-                = new TableDataFormatIteratorWithoutAdapter<>(
+        final BufferedDataFormatIterator<ValueProvider> tableDataFormatIterator
+                = new BufferedDataFormatIterator<>(
                 dataFormat,
-                data.iterator()
-        );
+                data.iterator(),
+                new ValueProviderAdapter.AsIs<>()
+        )
+                .useDefaultWidthProviderProvider();
         if (blockSize > 0) {
             tableDataFormatIterator.setBlockSize(blockSize);
         }

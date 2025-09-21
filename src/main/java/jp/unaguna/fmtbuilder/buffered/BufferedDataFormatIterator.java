@@ -1,14 +1,17 @@
-package jp.unaguna.fmtbuilder;
+package jp.unaguna.fmtbuilder.buffered;
+
+import jp.unaguna.fmtbuilder.DataFormat;
+import jp.unaguna.fmtbuilder.FieldWidthProvider;
+import jp.unaguna.fmtbuilder.ValueProviderAdapter;
 
 import java.util.*;
 
 /**
- * The iterator of formatted data line as table row.
+ * The iterator of formatted data line.
  *
  * <p>
  * This iterator buffers the data.
- * It then obtains the maximum width of each variable's value to pad the output string,
- * ensuring the variable display aligns vertically.
+ * Then, it implements features requiring buffering, such as value padding.
  * </p>
  *
  * <p>
@@ -19,20 +22,29 @@ import java.util.*;
  *
  * @param <T> Data equivalent to one line
  */
-public class TableDataFormatIterator<T> implements Iterator<String> {
+public class BufferedDataFormatIterator<T> implements Iterator<String> {
     private int blockSize = Integer.MAX_VALUE;
     private final DataFormat baseDataFormat;
     private final ValueProviderAdapter<T> adapter;
     private final Iterator<T> dataIterator;
-    private final List<T> dataBuffer = new LinkedList<>();
-    private final TableFieldHolder widthProvider = new TableFieldHolder();
+    private final LinkedList<T> dataBuffer = new LinkedList<>();
+    private WidthProviderProvider widthProviderProvider = null;
+    private final List<BufferEditor<T>> bufferEditors = new ArrayList<>();
 
-    public TableDataFormatIterator(
+    public BufferedDataFormatIterator(
             final DataFormat baseDataFormat, final Iterator<T> dataIterator, final ValueProviderAdapter<T> adapter) {
 
         this.baseDataFormat = baseDataFormat;
         this.dataIterator = dataIterator;
         this.adapter = adapter;
+    }
+
+    public BufferedDataFormatIterator<T> useDefaultWidthProviderProvider() {
+        final DefaultWidthProviderProvider<T> wpp = new DefaultWidthProviderProvider<>(baseDataFormat);
+        widthProviderProvider = wpp;
+        bufferEditors.add(wpp);
+
+        return this;
     }
 
     public void setBlockSize(final int blockSize) {
@@ -52,18 +64,15 @@ public class TableDataFormatIterator<T> implements Iterator<String> {
             throw new IllegalStateException("cannot load next data block; buffer is not empty");
         }
 
-        widthProvider.clear();
-
         while (dataIterator.hasNext() && dataBuffer.size() < blockSize) {
             final T nextData = dataIterator.next();
-            synchronized (adapter) {
-                adapter.setElement(nextData);
-                for (final String variableName : baseDataFormat.getVariableNames()) {
-                    final String value = adapter.get(variableName).toString();
-                    widthProvider.updateWidth(variableName, value.length());
-                }
-            }
             dataBuffer.add(nextData);
+        }
+
+        synchronized (adapter) {
+            for (BufferEditor<T> bufferEditor : bufferEditors) {
+                bufferEditor.edit(dataBuffer, adapter);
+            }
         }
     }
 
@@ -90,13 +99,43 @@ public class TableDataFormatIterator<T> implements Iterator<String> {
         }
 
         final T nextData = dataBuffer.remove(0);
+        final FieldWidthProvider widthProvider = widthProviderProvider != null
+                ? widthProviderProvider.widthProvider()
+                : null;
         synchronized(adapter) {
             adapter.setElement(nextData);
             baseDataFormat.format(adapter, widthProvider, builder);
         }
     }
 
-    private static class TableFieldHolder implements FieldWidthProvider {
+    private static class DefaultWidthProviderProvider<T> implements WidthProviderProvider, BufferEditor<T> {
+        private final DefaultWidthProvider widthProvider = new DefaultWidthProvider();
+        private final DataFormat baseDataFormat;
+
+        DefaultWidthProviderProvider(final DataFormat baseDataFormat) {
+            this.baseDataFormat = baseDataFormat;
+        }
+
+        @Override
+        public FieldWidthProvider widthProvider() {
+            return widthProvider;
+        }
+
+        @Override
+        public void edit(final LinkedList<T> buffer, final ValueProviderAdapter<T> adapter) {
+            widthProvider.clear();
+
+            for (final T element : buffer) {
+                adapter.setElement(element);
+                for (final String variableName : baseDataFormat.getVariableNames()) {
+                    final String value = adapter.get(variableName).toString();
+                    widthProvider.updateWidth(variableName, value.length());
+                }
+            }
+        }
+    }
+
+    private static class DefaultWidthProvider implements FieldWidthProvider {
         private final Map<String, Integer> width = new HashMap<>();
 
         public void clear() {
