@@ -1,28 +1,16 @@
 package jp.unaguna.fmtbuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UnknownFormatConversionException;
 
 /**
  * DataFormat is a formatter for data consisting of field values.
  * DataFormat.Builder can be used to build formatting rules to create a DataFormat for each project-specific data.
  */
-public class DataFormat {
-    private static final int CODE_POINT_PERCENT = '%';
-    private final List<DataFormatPart> formatParts;
-    private final List<String> variables;
-
-    private DataFormat(final List<DataFormatPart> formatParts) {
-        this.formatParts = formatParts;
-
-        final List<String> variables = new ArrayList<>();
-        formatParts.forEach(part -> {
-            final String variableName = part.variableName();
-            if (variableName != null) {
-                variables.add(variableName);
-            }
-        });
-        this.variables = Collections.unmodifiableList(variables);
-    }
+public interface DataFormat {
+    int CODE_POINT_PERCENT = '%';
 
     /**
      * Formats data.
@@ -31,11 +19,18 @@ public class DataFormat {
      * @return the formatted String
      * @throws DataFormattingException if some error occurred during formatting
      */
-    public String format(final ValueProvider valueProvider) {
-        final StringBuilder stringBuilder = new StringBuilder();
-        return this.format(valueProvider, stringBuilder)
-                .toString();
-    }
+    String format(final ValueProvider valueProvider);
+
+    /**
+     * Formats data.
+     *
+     * @param valueProvider the data to format
+     * @param fieldWidthProvider the provider of minimum width of each variable.
+     *                           This minimum width is used only for variables whose padding mode is specified.
+     * @return the formatted String
+     * @throws DataFormattingException if some error occurred during formatting
+     */
+    String format(final ValueProvider valueProvider, final FieldWidthProvider fieldWidthProvider);
 
     /**
      * Formats data and appends the resulting text to the string builder.
@@ -45,25 +40,29 @@ public class DataFormat {
      * @return the value passed in as toAppendTo
      * @throws DataFormattingException if some error occurred during formatting
      */
-    public StringBuilder format(final ValueProvider valueProvider, final StringBuilder toAppendTo) {
-        try {
-            for (final DataFormatPart formatPart : formatParts) {
-                formatPart.format(toAppendTo, valueProvider);
-            }
-        } catch (final Exception e) {
-            throw new DataFormattingException("some error occurred during formatting data", e);
-        }
-        return toAppendTo;
-    }
+    StringBuilder format(final ValueProvider valueProvider, final StringBuilder toAppendTo);
+
+    /**
+     * Formats data and appends the resulting text to the string builder.
+     *
+     * @param valueProvider the data to format
+     * @param fieldWidthProvider the provider of minimum width of each variable.
+     *                           This minimum width is used only for variables whose padding mode is specified.
+     * @param toAppendTo the string buffer to which the formatted text is to be appended
+     * @return the value passed in as toAppendTo
+     * @throws DataFormattingException if some error occurred during formatting
+     */
+    StringBuilder format(
+            final ValueProvider valueProvider,
+            final FieldWidthProvider fieldWidthProvider,
+            final StringBuilder toAppendTo);
 
     /**
      * Returns the variable names used in the format
      *
      * @return the variable names
      */
-    public List<String> getVariableNames() {
-        return this.variables;
-    }
+    List<String> getVariableNames();
 
     /**
      * Create a DataFormat instance which formats data by printf-formatting such as '%a'.
@@ -78,7 +77,25 @@ public class DataFormat {
      * @param fmt printf format
      * @return the DataFormat instance which formats data by the specified format
      */
-    public static DataFormat fromPrintfFormat(final String fmt) {
+    static DataFormat fromPrintfFormat(final String fmt) {
+        return fromPrintfFormat(fmt, new VariablePaddingSpecifications());
+    }
+
+    /**
+     * Create a DataFormat instance which formats data by printf-formatting such as '%a'.
+     *
+     * <p>
+     * The created DateFormat treats the first two characters starting with % as placeholders,
+     * and when formatting, it retrieves the value using the placeholder string as the key and embeds it.
+     * For example, if you specify '%abc' as the format, the value of %a is retrieved during formatting.
+     * If this value is 'ABC', the result will be 'ABCbc'. However, '%%' is an exception and '%' is embedded.
+     * </p>
+     *
+     * @param fmt printf format
+     * @param paddingSpecs specification of padding mode of each variable
+     * @return the DataFormat instance which formats data by the specified format
+     */
+    static DataFormat fromPrintfFormat(final String fmt, final VariablePaddingSpecifications paddingSpecs) {
         Objects.requireNonNull(fmt);
         final Builder builder = new Builder();
         int head = 0;
@@ -90,7 +107,8 @@ public class DataFormat {
                 if (headCodePoint == CODE_POINT_PERCENT) {
                     builder.constant("%");
                 } else {
-                    builder.string("%" + new String(Character.toChars(headCodePoint)));
+                    final String variableName = "%" + new String(Character.toChars(headCodePoint));
+                    builder.string(variableName, paddingSpecs.get(variableName));
                 }
                 percent = false;
 
@@ -112,12 +130,12 @@ public class DataFormat {
         return builder.build();
     }
 
-    public static class Builder {
+    class Builder {
         private List<DataFormatPart> formatParts = new ArrayList<>();
 
         public DataFormat build() {
             compressConstants();
-            return new DataFormat(formatParts);
+            return new SimpleDataFormat(formatParts);
         }
 
         public Builder constant(final String value) {
@@ -126,7 +144,11 @@ public class DataFormat {
         }
 
         public Builder string(final String key) {
-            formatParts.add(new DataFormatPartString(key));
+            return string(key, ValuePadding.NONE);
+        }
+
+        public Builder string(final String key, final ValuePadding padding) {
+            formatParts.add(new DataFormatPartString(key, padding));
             return this;
         }
 

@@ -10,7 +10,7 @@ class DataFormatPartConstant implements DataFormatPart {
     }
 
     @Override
-    public void format(final StringBuilder stringBuilder, final ValueProvider valueProvider) {
+    public void format(final StringBuilder stringBuilder, final ValueProvider valueProvider, final Integer width) {
         stringBuilder.append(value);
     }
 

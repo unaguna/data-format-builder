@@ -30,31 +30,18 @@ import java.util.function.Function;
  *
  * @param <T> type of inner instance
  */
-public class ValueProviderAdapter<T> implements ValueProvider {
-    private final Map<String, Function<T, Object>> providers;
-    private T element = null;
+public abstract class ValueProviderAdapter<T> implements ValueProvider {
+    protected T element = null;
 
     public void setElement(final T element) {
         this.element = element;
     }
 
-    private ValueProviderAdapter(final Map<String, Function<T, Object>> providers) {
-        this.providers = providers;
-    }
-
-    @Override
-    public Object get(final String key) {
-        final T element = this.element;
-        if (element == null) {
-            throw new IllegalStateException("This adapter contains no element.");
+    public static class AsIs<T extends ValueProvider> extends ValueProviderAdapter<T> {
+        @Override
+        public Object get(String key) {
+            return element.get(key);
         }
-
-        final Function<T, Object> provider = providers.get(key);
-        if (provider == null) {
-            throw new IllegalArgumentException(key);
-        }
-
-        return provider.apply(element);
     }
 
     public static class Builder<T> {
@@ -73,7 +60,7 @@ public class ValueProviderAdapter<T> implements ValueProvider {
         }
 
         public ValueProviderAdapter<T> build() {
-            return new ValueProviderAdapter<>(this.providers);
+            return new ValueProviderAdapterConcrete<>(this.providers);
         }
     }
 }
