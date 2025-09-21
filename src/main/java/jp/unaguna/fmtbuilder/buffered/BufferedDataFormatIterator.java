@@ -30,6 +30,7 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
     private final LinkedList<T> dataBuffer = new LinkedList<>();
     private WidthProviderProvider widthProviderProvider = null;
     private final List<BufferEditor<T>> bufferEditors = new ArrayList<>();
+    private final List<BufferObserver<T>> bufferObservers = new ArrayList<>();
 
     public BufferedDataFormatIterator(
             final DataFormat baseDataFormat, final Iterator<T> dataIterator, final ValueProviderAdapter<T> adapter) {
@@ -42,7 +43,7 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
     public BufferedDataFormatIterator<T> useDefaultWidthProviderProvider() {
         final DefaultWidthProviderProvider<T> wpp = new DefaultWidthProviderProvider<>(baseDataFormat);
         widthProviderProvider = wpp;
-        bufferEditors.add(wpp);
+        bufferObservers.add(wpp);
 
         return this;
     }
@@ -70,8 +71,11 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
         }
 
         synchronized (adapter) {
-            for (BufferEditor<T> bufferEditor : bufferEditors) {
+            for (final BufferEditor<T> bufferEditor : bufferEditors) {
                 bufferEditor.edit(dataBuffer, adapter);
+            }
+            for (final BufferObserver<T> bufferObserver : bufferObservers) {
+                bufferObserver.observe(Collections.unmodifiableList(dataBuffer), adapter);
             }
         }
     }
@@ -108,7 +112,7 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
         }
     }
 
-    private static class DefaultWidthProviderProvider<T> implements WidthProviderProvider, BufferEditor<T> {
+    private static class DefaultWidthProviderProvider<T> implements WidthProviderProvider, BufferObserver<T> {
         private final DefaultWidthProvider widthProvider = new DefaultWidthProvider();
         private final DataFormat baseDataFormat;
 
@@ -122,7 +126,7 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
         }
 
         @Override
-        public void edit(final LinkedList<T> buffer, final ValueProviderAdapter<T> adapter) {
+        public void observe(final List<T> buffer, final ValueProviderAdapter<T> adapter) {
             widthProvider.clear();
 
             for (final T element : buffer) {
