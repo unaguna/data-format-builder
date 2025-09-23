@@ -237,7 +237,7 @@ public class BufferedDataFormatIteratorTest {
     }
 
     @Test
-    public void testPaddingWithBufferEditor() {
+    public void testPaddingWithBufferHandler() {
         final DataFormat dataFormat = new DataFormat.Builder()
                 .string("key1", ValuePadding.LEFT)
                 .constant(" ")
@@ -267,8 +267,8 @@ public class BufferedDataFormatIteratorTest {
                 adapter
         )
                 .useDefaultWidthProviderProvider()
-                // sort with BufferEditor
-                .applyBufferEditor(((buffer, ad) -> buffer.sort((a, b) -> b - a)));
+                // sort with BufferHandler
+                .applyBufferHandler(((buffer, ad) -> buffer.sort((a, b) -> b - a)));
 
         final List<String> actualLines = new ArrayList<>();
         for (int record : data) {
@@ -286,7 +286,7 @@ public class BufferedDataFormatIteratorTest {
     }
 
     @Test
-    public void testPaddingWithBufferEditorAndBufferObserver() {
+    public void testPaddingWithBufferHandlerAndBufferObserver() {
         final DataFormat dataFormat = new DataFormat.Builder()
                 .string("key1", ValuePadding.LEFT)
                 .constant(" ")
@@ -318,8 +318,8 @@ public class BufferedDataFormatIteratorTest {
         )
                 .useDefaultWidthProviderProvider()
                 .applyBufferObserver((buffer, ad) -> observed.addAll(buffer))
-                // sort with BufferEditor before BufferObserver runs even if applied after
-                .applyBufferEditor(((buffer, ad) -> buffer.sort((a, b) -> b - a)));
+                // sort with BufferHandler before BufferObserver runs even if applied after
+                .applyBufferHandler(((buffer, ad) -> buffer.sort((a, b) -> b - a)));
 
         final List<String> actualLines = new ArrayList<>();
         for (int record : data) {

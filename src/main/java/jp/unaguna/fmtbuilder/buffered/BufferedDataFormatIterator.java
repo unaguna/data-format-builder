@@ -29,7 +29,7 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
     private final Iterator<T> dataIterator;
     private final LinkedList<T> dataBuffer = new LinkedList<>();
     private WidthProviderProvider widthProviderProvider = null;
-    private final List<BufferEditor<T>> bufferEditors = new ArrayList<>();
+    private final List<BufferHandler<T>> bufferHandlers = new ArrayList<>();
     private final List<BufferObserver<T>> bufferObservers = new ArrayList<>();
 
     public BufferedDataFormatIterator(
@@ -40,8 +40,8 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
         this.adapter = adapter;
     }
 
-    public BufferedDataFormatIterator<T> applyBufferEditor(final BufferEditor<T> bufferEditor) {
-        this.bufferEditors.add(bufferEditor);
+    public BufferedDataFormatIterator<T> applyBufferHandler(final BufferHandler<T> bufferHandler) {
+        this.bufferHandlers.add(bufferHandler);
         return this;
     }
 
@@ -81,8 +81,8 @@ public class BufferedDataFormatIterator<T> implements Iterator<String> {
         }
 
         synchronized (adapter) {
-            for (final BufferEditor<T> bufferEditor : bufferEditors) {
-                bufferEditor.edit(dataBuffer, adapter);
+            for (final BufferHandler<T> bufferHandler : bufferHandlers) {
+                bufferHandler.handle(dataBuffer, adapter);
             }
             for (final BufferObserver<T> bufferObserver : bufferObservers) {
                 bufferObserver.observe(Collections.unmodifiableList(dataBuffer), adapter);

@@ -4,6 +4,6 @@ import jp.unaguna.fmtbuilder.ValueProviderAdapter;
 
 import java.util.LinkedList;
 
-public interface BufferEditor<T> {
-    void edit(LinkedList<T> buffer, ValueProviderAdapter<T> adapter);
+public interface BufferHandler<T> {
+    void handle(LinkedList<T> buffer, ValueProviderAdapter<T> adapter);
 }
